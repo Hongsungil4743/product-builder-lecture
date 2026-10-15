@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>타로 카드 리딩</title>
+<style>
+  :root {
+    --bg: #f5f1fb;
+    --card: #ffffff;
+    --text: #231f33;
+    --muted: #6b6880;
+    --accent: #7c3aed;
+    --border: #e4def0;
+    --back1: #5b21b6;
+    --back2: #7c3aed;
+    --face: #fffaf0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #120d24;
+      --card: #1c1636;
+      --text: #f1edfa;
+      --muted: #a69fc4;
+      --accent: #a78bfa;
+      --border: #342b5a;
+      --back1: #2e1065;
+      --back2: #6d28d9;
+      --face: #2a2248;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #120d24;
+    --card: #1c1636;
+    --text: #f1edfa;
+    --muted: #a69fc4;
+    --accent: #a78bfa;
+    --border: #342b5a;
+    --back1: #2e1065;
+    --back2: #6d28d9;
+    --face: #2a2248;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+    padding: 32px 16px 48px;
+  }
+  main { max-width: 760px; margin: 0 auto; }
+  h1 { text-align: center; margin: 0 0 4px; }
+  .sub { text-align: center; color: var(--muted); margin: 0 0 24px; font-size: 14px; }
+  .theme-toggle {
+    position: fixed; top: 12px; right: 12px; cursor: pointer; font-size: 14px;
+  }
+  select, button, input {
+    font: inherit;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 10px 14px;
+    background: var(--card);
+    color: var(--text);
+  }
+  button { cursor: pointer; }
+  button.primary {
+    background: var(--accent); color: #fff; border-color: var(--accent); font-weight: bold;
+  }
+  button.primary:hover { filter: brightness(1.1); }
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+  .controls input { flex: 1 1 260px; min-width: 0; }
+
+  .table { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin: 8px 0; }
+  .slot { width: 170px; text-align: center; }
+  .slot-title { font-size: 13px; color: var(--muted); margin-bottom: 8px; min-height: 18px; }
+  .flip { perspective: 900px; width: 170px; height: 280px; cursor: pointer; }
+  .flip-inner {
+    position: relative; width: 100%; height: 100%;
+    transition: transform .8s;
+    transform-style: preserve-3d;
+  }
+  .flip.open .flip-inner { transform: rotateY(180deg); }
+  .face {
+    position: absolute; inset: 0;
+    backface-visibility: hidden;
+    border-radius: 14px;
+    border: 2px solid var(--accent);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    box-shadow: 0 6px 18px rgba(0,0,0,.25);
+  }
+  .back {
+    background:
+      radial-gradient(circle at center, transparent 0 30%, rgba(255,255,255,.12) 31% 33%, transparent 34%),
+      repeating-linear-gradient(45deg, var(--back1) 0 10px, var(--back2) 10px 20px);
+    color: #fff; font-size: 44px;
+  }
+  .front { background: var(--face); transform: rotateY(180deg); padding: 12px; }
+  .front .num { font-size: 12px; color: var(--muted); }
+  .front .sym { font-size: 64px; line-height: 1.2; transition: transform .4s; }
+  .front .rev .sym { transform: rotate(180deg); }
+  .front .name { font-weight: bold; margin-top: 6px; }
+  .front .en { font-size: 12px; color: var(--muted); }
+  .front .dir { margin-top: 8px; font-size: 12px; color: var(--accent); font-weight: bold; }
+
+  .reading { display: grid; gap: 12px; }
+  .reading h3 { margin: 0 0 4px; font-size: 16px; }
+  .reading p { margin: 4px 0; line-height: 1.6; }
+  .kw { color: var(--accent); font-weight: bold; font-size: 14px; }
+  .q { text-align: center; font-style: italic; color: var(--muted); margin: 0 0 8px; }
+  .hint { text-align: center; color: var(--muted); font-size: 12px; margin-top: 16px; }
+  .empty { text-align: center; color: var(--muted); padding: 12px 0; }
+</style>
+</head>
+<body>
+<button id="theme" class="theme-toggle" type="button" aria-label="테마 전환"></button>
+<main>
+  <h1>🔮 타로 카드 리딩</h1>
+  <p class="sub">마음속 질문을 떠올리고 카드를 뽑아보세요</p>
+
+  <div class="panel controls">
+    <input id="question" type="text" maxlength="80" placeholder="질문을 적어보세요 (선택)">
+    <select id="spread">
+      <option value="1">원 카드 (오늘의 카드)</option>
+      <option value="3" selected>쓰리 카드 (과거·현재·미래)</option>
+    </select>
+    <button id="draw" class="primary">카드 뽑기</button>
+  </div>
+
+  <div class="panel">
+    <div id="question-echo" class="q" hidden></div>
+    <div id="table" class="table"></div>
+    <div class="empty" id="table-hint">‘카드 뽑기’를 누른 뒤, 카드를 눌러 뒤집어 보세요.</div>
+  </div>
+
+  <div class="panel reading" id="reading" hidden></div>
+
+  <p class="hint">타로는 재미와 자기 성찰을 위한 놀이입니다. 중요한 결정은 스스로 신중하게 내려주세요.</p>
+</main>
+
+<script>
+  const CARDS = [
+    { n: 0, sym: '🃏', name: '바보', en: 'The Fool',
+      up: ['새로운 시작', '자유', '모험'], upText: '두려움 없이 첫걸음을 내딛기 좋은 때입니다. 계산보다 설렘을 따라가 보세요.',
+      rev: ['무모함', '준비 부족'], revText: '충동적인 결정을 조심하세요. 한 번 더 확인하고 움직이면 좋습니다.' },
+    { n: 1, sym: '🪄', name: '마법사', en: 'The Magician',
+      up: ['창조력', '의지', '실행'], upText: '필요한 재능과 자원이 이미 당신 손에 있습니다. 집중해서 실행에 옮겨 보세요.',
+      rev: ['재능 낭비', '속임수'], revText: '능력을 흩어 쓰고 있지 않은지 돌아보세요. 말보다 실행이 필요합니다.' },
+    { n: 2, sym: '🌙', name: '여사제', en: 'The High Priestess',
+      up: ['직관', '고요', '비밀'], upText: '답은 이미 마음속에 있습니다. 서두르지 말고 내면의 목소리에 귀 기울이세요.',
+      rev: ['혼란', '감춰진 의도'], revText: '직관이 흐려진 상태입니다. 드러나지 않은 정보가 있는지 살펴보세요.' },
+    { n: 3, sym: '👑', name: '여황제', en: 'The Empress',
+      up: ['풍요', '돌봄', '결실'], upText: '노력이 풍성한 결실로 이어지는 시기입니다. 자신과 주변을 따뜻하게 돌보세요.',
+      rev: ['의존', '정체'], revText: '지나친 안주나 과보호를 경계하세요. 스스로를 돌보는 시간이 필요합니다.' },
+    { n: 4, sym: '🏛️', name: '황제', en: 'The Emperor',
+      up: ['안정', '책임', '구조'], upText: '체계와 원칙으로 상황을 단단히 잡아갈 수 있습니다. 리더십을 발휘해 보세요.',
+      rev: ['독선', '경직'], revText: '고집이 갈등을 키울 수 있습니다. 유연함도 힘이라는 걸 기억하세요.' },
+    { n: 5, sym: '📜', name: '교황', en: 'The Hierophant',
+      up: ['전통', '조언', '배움'], upText: '검증된 방법과 믿을 만한 조언자가 도움이 됩니다. 기본기를 다져 보세요.',
+      rev: ['관습 탈피', '틀에 갇힘'], revText: '낡은 규칙이 발목을 잡고 있진 않은가요? 나만의 방식을 찾아볼 때입니다.' },
+    { n: 6, sym: '💞', name: '연인', en: 'The Lovers',
+      up: ['사랑', '조화', '선택'], upText: '마음이 이끄는 진실한 선택의 순간입니다. 가치관에 맞는 길을 고르세요.',
+      rev: ['불균형', '망설임'], revText: '관계나 선택에서 엇갈림이 있습니다. 솔직한 대화가 필요합니다.' },
+    { n: 7, sym: '🏇', name: '전차', en: 'The Chariot',
+      up: ['승리', '추진력', '자기 통제'], upText: '목표를 향해 거침없이 나아갈 수 있습니다. 방향만 분명히 잡으세요.',
+      rev: ['방향 상실', '폭주'], revText: '힘은 있지만 방향이 흔들립니다. 잠시 멈추고 고삐를 다시 잡으세요.' },
+    { n: 8, sym: '🦁', name: '힘', en: 'Strength',
+      up: ['용기', '인내', '부드러운 강인함'], upText: '진짜 힘은 다정함과 인내에서 나옵니다. 침착함이 상황을 이깁니다.',
+      rev: ['자신감 부족', '감정 폭발'], revText: '스스로를 의심하고 있진 않나요? 작은 성공부터 쌓아 자신감을 되찾으세요.' },
+    { n: 9, sym: '🏮', name: '은둔자', en: 'The Hermit',
+      up: ['성찰', '탐구', '고독'], upText: '잠시 물러나 스스로를 돌아보면 길이 보입니다. 혼자만의 시간이 힘이 됩니다.',
+      rev: ['고립', '외로움'], revText: '혼자만의 시간이 지나치면 고립이 됩니다. 믿을 만한 사람에게 손을 내미세요.' },
+    { n: 10, sym: '🎡', name: '운명의 수레바퀴', en: 'Wheel of Fortune',
+      up: ['전환점', '행운', '순환'], upText: '흐름이 좋은 쪽으로 돌아섭니다. 찾아온 기회를 놓치지 마세요.',
+      rev: ['불운', '저항'], revText: '변화에 맞서기보다 흐름을 받아들이세요. 지금의 정체는 일시적입니다.' },
+    { n: 11, sym: '⚖️', name: '정의', en: 'Justice',
+      up: ['공정', '진실', '인과'], upText: '뿌린 대로 거두는 시기입니다. 정직하고 균형 잡힌 판단이 좋은 결과를 부릅니다.',
+      rev: ['불공정', '회피'], revText: '책임을 피하거나 편향된 시각은 아닌지 점검하세요.' },
+    { n: 12, sym: '🙃', name: '매달린 사람', en: 'The Hanged Man',
+      up: ['관점 전환', '기다림', '내려놓음'], upText: '잠시 멈추고 다른 각도에서 바라보세요. 기다림이 통찰을 줍니다.',
+      rev: ['헛된 희생', '미루기'], revText: '의미 없는 기다림이 길어지고 있습니다. 이제 결단이 필요합니다.' },
+    { n: 13, sym: '🦋', name: '죽음', en: 'Death',
+      up: ['끝과 시작', '변화', '정리'], upText: '문자 그대로의 죽음이 아니라 변환의 카드입니다. 끝맺음이 새 출발을 열어줍니다.',
+      rev: ['변화 거부', '미련'], revText: '놓아야 할 것을 붙잡고 있진 않나요? 미련을 내려놓을수록 가벼워집니다.' },
+    { n: 14, sym: '🫗', name: '절제', en: 'Temperance',
+      up: ['균형', '조화', '인내'], upText: '극단을 피하고 중용을 지키세요. 꾸준한 조율이 안정을 가져옵니다.',
+      rev: ['과잉', '불균형'], revText: '한쪽으로 치우쳐 있습니다. 생활과 감정의 균형을 다시 맞춰보세요.' },
+    { n: 15, sym: '⛓️', name: '악마', en: 'The Devil',
+      up: ['유혹', '집착', '속박'], upText: '나를 묶고 있는 습관이나 관계를 직시할 때입니다. 사슬은 사실 느슨합니다.',
+      rev: ['해방', '벗어남'], revText: '얽매이던 것에서 벗어날 힘이 생기고 있습니다. 한 걸음만 내디디세요.' },
+    { n: 16, sym: '⚡', name: '탑', en: 'The Tower',
+      up: ['급변', '붕괴', '깨달음'], upText: '예상치 못한 변화가 올 수 있지만, 무너진 자리에 더 단단한 기반을 세울 수 있습니다.',
+      rev: ['위기 모면', '두려움'], revText: '다가오는 변화를 피하려 하고 있습니다. 미룰수록 충격이 커질 수 있습니다.' },
+    { n: 17, sym: '⭐', name: '별', en: 'The Star',
+      up: ['희망', '치유', '영감'], upText: '힘든 시기를 지나 희망이 보입니다. 스스로를 믿고 꿈을 향해 나아가세요.',
+      rev: ['낙담', '불신'], revText: '희망이 잠시 흐려졌지만 사라진 게 아닙니다. 작은 것에서 다시 빛을 찾아보세요.' },
+    { n: 18, sym: '🌕', name: '달', en: 'The Moon',
+      up: ['불안', '환상', '무의식'], upText: '상황이 불분명하고 마음이 흔들릴 수 있습니다. 확실해질 때까지 단정은 미루세요.',
+      rev: ['안개가 걷힘', '진실 드러남'], revText: '혼란이 서서히 걷히고 있습니다. 감춰졌던 사실이 분명해질 거예요.' },
+    { n: 19, sym: '☀️', name: '태양', en: 'The Sun',
+      up: ['기쁨', '성공', '활력'], upText: '밝고 긍정적인 기운이 가득합니다. 자신 있게 드러내고 즐기세요.',
+      rev: ['일시적 우울', '과신'], revText: '기쁨이 조금 가려져 있습니다. 지나친 낙관은 피하되 희망은 놓지 마세요.' },
+    { n: 20, sym: '📯', name: '심판', en: 'Judgement',
+      up: ['부활', '각성', '새로운 소명'], upText: '과거를 돌아보고 새로 태어나는 시기입니다. 마음의 부름에 응답하세요.',
+      rev: ['자기 의심', '후회'], revText: '과거에 얽매여 결단을 못 내리고 있습니다. 스스로를 용서하세요.' },
+    { n: 21, sym: '🌍', name: '세계', en: 'The World',
+      up: ['완성', '성취', '통합'], upText: '한 사이클이 훌륭하게 마무리됩니다. 성취를 충분히 누리고 다음 여정을 준비하세요.',
+      rev: ['미완성', '마무리 부족'], revText: '거의 다 왔지만 마지막 한 조각이 남았습니다. 끝까지 매듭지어 보세요.' }
+  ];
+
+  const POSITIONS = {
+    1: ['오늘의 메시지'],
+    3: ['과거', '현재', '미래']
+  };
+
+  const tableEl = document.getElementById('table');
+  const hintEl = document.getElementById('table-hint');
+  const readingEl = document.getElementById('reading');
+  const echoEl = document.getElementById('question-echo');
+  let drawn = [];
+  let opened = 0;
+
+  function randInt(max) {
+    const limit = Math.floor(0x100000000 / max) * max;
+    const buf = new Uint32Array(1);
+    do { crypto.getRandomValues(buf); } while (buf[0] >= limit);
+    return buf[0] % max;
+  }
+
+  function pickCards(count) {
+    const pool = CARDS.slice();
+    const out = [];
+    for (let i = 0; i < count; i++) {
+      const card = pool.splice(randInt(pool.length), 1)[0];
+      out.push({ card, reversed: randInt(2) === 1 });
+    }
+    return out;
+  }
+
+  function el(tag, cls, text) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+
+  function buildSlot(item, title, index, total) {
+    const slot = el('div', 'slot');
+    slot.appendChild(el('div', 'slot-title', title));
+
+    const flip = el('div', 'flip');
+    flip.tabIndex = 0;
+    flip.setAttribute('role', 'button');
+    flip.setAttribute('aria-label', title + ' 카드 뒤집기');
+    const inner = el('div', 'flip-inner');
+
+    const back = el('div', 'face back', '✦');
+    const front = el('div', 'face front');
+    const wrap = el('div', item.reversed ? 'rev' : '');
+    wrap.style.textAlign = 'center';
+    const sym = el('div', 'sym', item.card.sym);
+    wrap.appendChild(sym);
+    front.appendChild(el('div', 'num', String(item.card.n)));
+    front.appendChild(wrap);
+    front.appendChild(el('div', 'name', item.card.name));
+    front.appendChild(el('div', 'en', item.card.en));
+    front.appendChild(el('div', 'dir', item.reversed ? '역방향' : '정방향'));
+
+    inner.appendChild(back);
+    inner.appendChild(front);
+    flip.appendChild(inner);
+    slot.appendChild(flip);
+
+    const open = () => {
+      if (flip.classList.contains('open')) return;
+      flip.classList.add('open');
+      opened++;
+      if (opened === total) showReading();
+    };
+    flip.addEventListener('click', open);
+    flip.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
+    });
+    return slot;
+  }
+
+  function showReading() {
+    readingEl.innerHTML = '';
+    const titles = POSITIONS[drawn.length];
+    drawn.forEach((item, i) => {
+      const { card, reversed } = item;
+      const box = el('div');
+      box.appendChild(el('h3', '', titles[i] + ' · ' + card.name + (reversed ? ' (역방향)' : '')));
+      box.appendChild(el('div', 'kw', (reversed ? card.rev : card.up).map(k => '#' + k).join(' ')));
+      box.appendChild(el('p', '', reversed ? card.revText : card.upText));
+      readingEl.appendChild(box);
+    });
+    if (drawn.length === 3) {
+      const sum = el('div');
+      sum.appendChild(el('h3', '', '종합'));
+      sum.appendChild(el('p', '',
+        '과거의 「' + drawn[0].card.name + '」에서 현재의 「' + drawn[1].card.name +
+        '」을 거쳐 「' + drawn[2].card.name + '」의 흐름으로 이어집니다. 지금의 선택이 미래의 모습을 만들어 갑니다.'));
+      readingEl.appendChild(sum);
+    }
+    readingEl.hidden = false;
+    readingEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  document.getElementById('draw').addEventListener('click', () => {
+    const count = parseInt(document.getElementById('spread').value, 10);
+    const question = document.getElementById('question').value.trim();
+    drawn = pickCards(count);
+    opened = 0;
+    tableEl.innerHTML = '';
+    readingEl.hidden = true;
+    hintEl.textContent = '카드를 눌러 한 장씩 뒤집어 보세요.';
+    echoEl.hidden = !question;
+    echoEl.textContent = question ? '“' + question + '”' : '';
+    const titles = POSITIONS[count];
+    drawn.forEach((item, i) => tableEl.appendChild(buildSlot(item, titles[i], i, count)));
+  });
+
+  // 테마 전환 (라이트/다크), 선택값은 localStorage에 저장
+  const themeBtn = document.getElementById('theme');
+  const root = document.documentElement;
+  const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  function currentTheme() {
+    return root.dataset.theme || (darkQuery.matches ? 'dark' : 'light');
+  }
+  function updateThemeBtn() {
+    themeBtn.textContent = currentTheme() === 'dark' ? '☀️ 화이트 모드' : '🌙 다크 모드';
+  }
+  try {
+    const saved = localStorage.getItem('theme');
+    if (saved === 'light' || saved === 'dark') root.dataset.theme = saved;
+  } catch (e) {}
+  themeBtn.addEventListener('click', () => {
+    const next = currentTheme() === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch (e) {}
+    updateThemeBtn();
+  });
+  darkQuery.addEventListener('change', updateThemeBtn);
+  updateThemeBtn();
+</script>
+</body>
+</html>
