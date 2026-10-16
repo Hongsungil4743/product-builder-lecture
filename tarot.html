@@ -51,6 +51,7 @@
   }
   main { max-width: 760px; margin: 0 auto; }
   h1 { text-align: center; margin: 0 0 4px; }
+  h1.title { font-family: Georgia, "Batang", "Noto Serif KR", serif; letter-spacing: .2em; font-weight: 600; }
   .sub { text-align: center; color: var(--muted); margin: 0 0 24px; font-size: 14px; }
   .theme-toggle {
     position: fixed; top: 12px; right: 12px; cursor: pointer; font-size: 14px;
@@ -78,41 +79,82 @@
   .controls { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
   .controls input { flex: 1 1 260px; min-width: 0; }
 
-  .table { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin: 8px 0; }
-  .slot { width: 170px; text-align: center; }
-  .slot-title { font-size: 13px; color: var(--muted); margin-bottom: 8px; min-height: 18px; }
-  .flip { perspective: 900px; width: 170px; height: 280px; cursor: pointer; }
+  .table { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin: 8px 0; }
+  .slot { width: 180px; text-align: center; }
+  .slot-title {
+    font-family: Georgia, "Batang", serif; letter-spacing: .15em;
+    font-size: 13px; color: var(--muted); margin-bottom: 10px; min-height: 18px;
+  }
+  .flip { perspective: 1000px; width: 180px; height: 300px; cursor: pointer; }
+  .flip:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 12px; }
   .flip-inner {
     position: relative; width: 100%; height: 100%;
     transition: transform .8s;
     transform-style: preserve-3d;
   }
   .flip.open .flip-inner { transform: rotateY(180deg); }
+  .flip:not(.open):hover .flip-inner { transform: translateY(-4px); }
   .face {
     position: absolute; inset: 0;
     backface-visibility: hidden;
-    border-radius: 14px;
-    border: 2px solid var(--accent);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    box-shadow: 0 6px 18px rgba(0,0,0,.25);
+    border-radius: 10px;
+    border: 3px solid #b8892b;
+    box-shadow: 0 8px 20px rgba(0,0,0,.35), inset 0 0 0 1px rgba(0,0,0,.4);
+    overflow: hidden;
   }
+  .face::before {
+    content: ""; position: absolute; inset: 7px;
+    border: 1.5px solid #b8892b; border-radius: 4px; pointer-events: none;
+  }
+  /* 카드 뒷면: 남색 바탕에 금빛 문양 */
   .back {
     background:
-      radial-gradient(circle at center, transparent 0 30%, rgba(255,255,255,.12) 31% 33%, transparent 34%),
-      repeating-linear-gradient(45deg, var(--back1) 0 10px, var(--back2) 10px 20px);
-    color: #fff; font-size: 44px;
+      radial-gradient(circle at center, #1d1a52 0 38%, transparent 39%),
+      repeating-linear-gradient(45deg, #14123a 0 9px, #1b1850 9px 18px);
+    display: flex; align-items: center; justify-content: center;
   }
-  .front { background: var(--face); transform: rotateY(180deg); padding: 12px; }
-  .front .num { font-size: 12px; color: var(--muted); }
-  .front .sym { font-size: 64px; line-height: 1.2; transition: transform .4s; }
-  .front .rev .sym { transform: rotate(180deg); }
-  .front .name { font-weight: bold; margin-top: 6px; }
-  .front .en { font-size: 12px; color: var(--muted); }
-  .front .dir { margin-top: 8px; font-size: 12px; color: var(--accent); font-weight: bold; }
+  .back::after {
+    content: "º6"; color: #d9b24c; font-size: 46px;
+    width: 96px; height: 96px; border: 2px solid #b8892b; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 0 5px #14123a, 0 0 0 6px #b8892b;
+  }
+  /* 카드 앞면: 양피지 질감 + 로마 숫자 + 메달리온 + 이름 띠 */
+  .front {
+    transform: rotateY(180deg);
+    background: radial-gradient(circle at 50% 40%, #f6ebcb, #e8d6a6);
+    color: #3b2a0d;
+    font-family: Georgia, "Batang", "Noto Serif KR", serif;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 14px 12px 12px;
+  }
+  .front .num { font-size: 15px; letter-spacing: .2em; font-weight: bold; margin-top: 2px; }
+  .front .medal {
+    width: 112px; height: 112px; margin: 10px 0 12px; border-radius: 50%;
+    background: radial-gradient(circle at 50% 35%, #2b2670, #14123a);
+    border: 3px solid #b8892b;
+    box-shadow: 0 0 0 4px #e8d6a6, 0 0 0 5px #b8892b;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .front .sym {
+    font-family: "Segoe UI Symbol", "Noto Sans Symbols", "Apple Symbols", serif;
+    font-size: 62px; line-height: 1; color: #e2bd5b;
+    text-shadow: 0 0 8px rgba(226,189,91,.45);
+    transition: transform .4s;
+  }
+  .front .medal.rev .sym { transform: rotate(180deg); }
+  .front .name { font-weight: bold; font-size: 17px; margin-top: auto; }
+  .front .en { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; margin-top: 3px; color: #6b4a14; }
+  .front .dir {
+    margin-top: 8px; font-size: 11px; padding: 2px 10px; border-radius: 20px;
+    background: #3b2a0d; color: #e8d6a6; letter-spacing: .1em;
+  }
 
   .reading { display: grid; gap: 12px; }
   .reading h3 { margin: 0 0 4px; font-size: 16px; }
-  .reading p { margin: 4px 0; line-height: 1.6; }
+  .reading p { margin: 6px 0; line-height: 1.65; }
+  .reading strong { color: var(--accent); }
+  .reading .tip { background: var(--bg); border-radius: 10px; padding: 8px 12px; }
   .kw { color: var(--accent); font-weight: bold; font-size: 14px; }
   .q { text-align: center; font-style: italic; color: var(--muted); margin: 0 0 8px; }
   .hint { text-align: center; color: var(--muted); font-size: 12px; margin-top: 16px; }
@@ -122,11 +164,17 @@
 <body>
 <button id="theme" class="theme-toggle" type="button" aria-label="테마 전환"></button>
 <main>
-  <h1>🔮 타로 카드 리딩</h1>
+  <h1 class="title">타로 카드 리딩</h1>
   <p class="sub">마음속 질문을 떠올리고 카드를 뽑아보세요</p>
 
   <div class="panel controls">
     <input id="question" type="text" maxlength="80" placeholder="질문을 적어보세요 (선택)">
+    <select id="topic" aria-label="질문 주제">
+      <option value="all" selected>주제: 종합</option>
+      <option value="love">주제: 연애</option>
+      <option value="work">주제: 직업·학업</option>
+      <option value="money">주제: 재물</option>
+    </select>
     <select id="spread">
       <option value="1">원 카드 (오늘의 카드)</option>
       <option value="3" selected>쓰리 카드 (과거·현재·미래)</option>
@@ -147,73 +195,297 @@
 
 <script>
   const CARDS = [
-    { n: 0, sym: '🃏', name: '바보', en: 'The Fool',
-      up: ['새로운 시작', '자유', '모험'], upText: '두려움 없이 첫걸음을 내딛기 좋은 때입니다. 계산보다 설렘을 따라가 보세요.',
-      rev: ['무모함', '준비 부족'], revText: '충동적인 결정을 조심하세요. 한 번 더 확인하고 움직이면 좋습니다.' },
-    { n: 1, sym: '🪄', name: '마법사', en: 'The Magician',
-      up: ['창조력', '의지', '실행'], upText: '필요한 재능과 자원이 이미 당신 손에 있습니다. 집중해서 실행에 옮겨 보세요.',
-      rev: ['재능 낭비', '속임수'], revText: '능력을 흩어 쓰고 있지 않은지 돌아보세요. 말보다 실행이 필요합니다.' },
-    { n: 2, sym: '🌙', name: '여사제', en: 'The High Priestess',
-      up: ['직관', '고요', '비밀'], upText: '답은 이미 마음속에 있습니다. 서두르지 말고 내면의 목소리에 귀 기울이세요.',
-      rev: ['혼란', '감춰진 의도'], revText: '직관이 흐려진 상태입니다. 드러나지 않은 정보가 있는지 살펴보세요.' },
-    { n: 3, sym: '👑', name: '여황제', en: 'The Empress',
-      up: ['풍요', '돌봄', '결실'], upText: '노력이 풍성한 결실로 이어지는 시기입니다. 자신과 주변을 따뜻하게 돌보세요.',
-      rev: ['의존', '정체'], revText: '지나친 안주나 과보호를 경계하세요. 스스로를 돌보는 시간이 필요합니다.' },
-    { n: 4, sym: '🏛️', name: '황제', en: 'The Emperor',
-      up: ['안정', '책임', '구조'], upText: '체계와 원칙으로 상황을 단단히 잡아갈 수 있습니다. 리더십을 발휘해 보세요.',
-      rev: ['독선', '경직'], revText: '고집이 갈등을 키울 수 있습니다. 유연함도 힘이라는 걸 기억하세요.' },
-    { n: 5, sym: '📜', name: '교황', en: 'The Hierophant',
-      up: ['전통', '조언', '배움'], upText: '검증된 방법과 믿을 만한 조언자가 도움이 됩니다. 기본기를 다져 보세요.',
-      rev: ['관습 탈피', '틀에 갇힘'], revText: '낡은 규칙이 발목을 잡고 있진 않은가요? 나만의 방식을 찾아볼 때입니다.' },
-    { n: 6, sym: '💞', name: '연인', en: 'The Lovers',
-      up: ['사랑', '조화', '선택'], upText: '마음이 이끄는 진실한 선택의 순간입니다. 가치관에 맞는 길을 고르세요.',
-      rev: ['불균형', '망설임'], revText: '관계나 선택에서 엇갈림이 있습니다. 솔직한 대화가 필요합니다.' },
-    { n: 7, sym: '🏇', name: '전차', en: 'The Chariot',
-      up: ['승리', '추진력', '자기 통제'], upText: '목표를 향해 거침없이 나아갈 수 있습니다. 방향만 분명히 잡으세요.',
-      rev: ['방향 상실', '폭주'], revText: '힘은 있지만 방향이 흔들립니다. 잠시 멈추고 고삐를 다시 잡으세요.' },
-    { n: 8, sym: '🦁', name: '힘', en: 'Strength',
-      up: ['용기', '인내', '부드러운 강인함'], upText: '진짜 힘은 다정함과 인내에서 나옵니다. 침착함이 상황을 이깁니다.',
-      rev: ['자신감 부족', '감정 폭발'], revText: '스스로를 의심하고 있진 않나요? 작은 성공부터 쌓아 자신감을 되찾으세요.' },
-    { n: 9, sym: '🏮', name: '은둔자', en: 'The Hermit',
-      up: ['성찰', '탐구', '고독'], upText: '잠시 물러나 스스로를 돌아보면 길이 보입니다. 혼자만의 시간이 힘이 됩니다.',
-      rev: ['고립', '외로움'], revText: '혼자만의 시간이 지나치면 고립이 됩니다. 믿을 만한 사람에게 손을 내미세요.' },
-    { n: 10, sym: '🎡', name: '운명의 수레바퀴', en: 'Wheel of Fortune',
-      up: ['전환점', '행운', '순환'], upText: '흐름이 좋은 쪽으로 돌아섭니다. 찾아온 기회를 놓치지 마세요.',
-      rev: ['불운', '저항'], revText: '변화에 맞서기보다 흐름을 받아들이세요. 지금의 정체는 일시적입니다.' },
-    { n: 11, sym: '⚖️', name: '정의', en: 'Justice',
-      up: ['공정', '진실', '인과'], upText: '뿌린 대로 거두는 시기입니다. 정직하고 균형 잡힌 판단이 좋은 결과를 부릅니다.',
-      rev: ['불공정', '회피'], revText: '책임을 피하거나 편향된 시각은 아닌지 점검하세요.' },
-    { n: 12, sym: '🙃', name: '매달린 사람', en: 'The Hanged Man',
-      up: ['관점 전환', '기다림', '내려놓음'], upText: '잠시 멈추고 다른 각도에서 바라보세요. 기다림이 통찰을 줍니다.',
-      rev: ['헛된 희생', '미루기'], revText: '의미 없는 기다림이 길어지고 있습니다. 이제 결단이 필요합니다.' },
-    { n: 13, sym: '🦋', name: '죽음', en: 'Death',
-      up: ['끝과 시작', '변화', '정리'], upText: '문자 그대로의 죽음이 아니라 변환의 카드입니다. 끝맺음이 새 출발을 열어줍니다.',
-      rev: ['변화 거부', '미련'], revText: '놓아야 할 것을 붙잡고 있진 않나요? 미련을 내려놓을수록 가벼워집니다.' },
-    { n: 14, sym: '🫗', name: '절제', en: 'Temperance',
-      up: ['균형', '조화', '인내'], upText: '극단을 피하고 중용을 지키세요. 꾸준한 조율이 안정을 가져옵니다.',
-      rev: ['과잉', '불균형'], revText: '한쪽으로 치우쳐 있습니다. 생활과 감정의 균형을 다시 맞춰보세요.' },
-    { n: 15, sym: '⛓️', name: '악마', en: 'The Devil',
-      up: ['유혹', '집착', '속박'], upText: '나를 묶고 있는 습관이나 관계를 직시할 때입니다. 사슬은 사실 느슨합니다.',
-      rev: ['해방', '벗어남'], revText: '얽매이던 것에서 벗어날 힘이 생기고 있습니다. 한 걸음만 내디디세요.' },
-    { n: 16, sym: '⚡', name: '탑', en: 'The Tower',
-      up: ['급변', '붕괴', '깨달음'], upText: '예상치 못한 변화가 올 수 있지만, 무너진 자리에 더 단단한 기반을 세울 수 있습니다.',
-      rev: ['위기 모면', '두려움'], revText: '다가오는 변화를 피하려 하고 있습니다. 미룰수록 충격이 커질 수 있습니다.' },
-    { n: 17, sym: '⭐', name: '별', en: 'The Star',
-      up: ['희망', '치유', '영감'], upText: '힘든 시기를 지나 희망이 보입니다. 스스로를 믿고 꿈을 향해 나아가세요.',
-      rev: ['낙담', '불신'], revText: '희망이 잠시 흐려졌지만 사라진 게 아닙니다. 작은 것에서 다시 빛을 찾아보세요.' },
-    { n: 18, sym: '🌕', name: '달', en: 'The Moon',
-      up: ['불안', '환상', '무의식'], upText: '상황이 불분명하고 마음이 흔들릴 수 있습니다. 확실해질 때까지 단정은 미루세요.',
-      rev: ['안개가 걷힘', '진실 드러남'], revText: '혼란이 서서히 걷히고 있습니다. 감춰졌던 사실이 분명해질 거예요.' },
-    { n: 19, sym: '☀️', name: '태양', en: 'The Sun',
-      up: ['기쁨', '성공', '활력'], upText: '밝고 긍정적인 기운이 가득합니다. 자신 있게 드러내고 즐기세요.',
-      rev: ['일시적 우울', '과신'], revText: '기쁨이 조금 가려져 있습니다. 지나친 낙관은 피하되 희망은 놓지 마세요.' },
-    { n: 20, sym: '📯', name: '심판', en: 'Judgement',
-      up: ['부활', '각성', '새로운 소명'], upText: '과거를 돌아보고 새로 태어나는 시기입니다. 마음의 부름에 응답하세요.',
-      rev: ['자기 의심', '후회'], revText: '과거에 얽매여 결단을 못 내리고 있습니다. 스스로를 용서하세요.' },
-    { n: 21, sym: '🌍', name: '세계', en: 'The World',
-      up: ['완성', '성취', '통합'], upText: '한 사이클이 훌륭하게 마무리됩니다. 성취를 충분히 누리고 다음 여정을 준비하세요.',
-      rev: ['미완성', '마무리 부족'], revText: '거의 다 왔지만 마지막 한 조각이 남았습니다. 끝까지 매듭지어 보세요.' }
+    { n: 0, name: '바보', en: 'The Fool',
+      up: { kw: ['새로운 시작', '자유', '모험'],
+        t: '아직 아무것도 정해지지 않은 백지 상태에서 첫걸음을 내딛는 카드입니다. 경험이 부족해도 순수한 용기가 길을 열어줍니다.',
+        love: '새로운 인연이 가볍고 설레는 모습으로 찾아옵니다. 조건을 따지기보다 마음이 끌리는 쪽으로 다가가 보세요.',
+        work: '새 직장, 새 프로젝트, 새 분야 도전에 좋은 시기입니다. 완벽한 준비를 기다리면 오히려 때를 놓칩니다.',
+        money: '큰 투자보다 작게 시작해 보는 실험이 맞습니다. 잃어도 괜찮은 금액 안에서만 도전하세요.',
+        tip: '이번 주 안에 미뤄둔 일 하나를 시작해 보세요. 시작 자체가 오늘의 과제입니다.' },
+      rev: { kw: ['무모함', '준비 부족', '산만함'],
+        t: '용기가 무모함으로 흐르기 쉬운 상태입니다. 방향 없이 달리면 같은 자리를 맴돌 수 있습니다.',
+        love: '가벼운 마음이 상대에게는 진지하지 않게 보일 수 있습니다. 말과 행동의 무게를 점검하세요.',
+        work: '충동적인 이직이나 사직 결정은 보류하세요. 조건과 리스크를 종이에 적어 비교해 보세요.',
+        money: '순간적인 기분으로 하는 소비와 투자를 조심하세요. 결제 전에 하루를 두고 다시 생각하세요.',
+        tip: '큰 결정을 내리기 전에 믿을 만한 사람 한 명에게 의견을 물어보세요.' } },
+    { n: 1, name: '마법사', en: 'The Magician',
+      up: { kw: ['창조력', '의지', '실행'],
+        t: '필요한 도구와 재능이 이미 손안에 있다는 카드입니다. 생각을 현실로 바꾸는 힘이 가장 강한 때입니다.',
+        love: '적극적으로 마음을 표현하면 통합니다. 매력을 보여줄 기회를 스스로 만들어 보세요.',
+        work: '기획, 발표, 협상에서 실력이 빛납니다. 자신의 강점을 구체적인 결과물로 보여주세요.',
+        money: '기술과 아이디어로 수입을 늘릴 수 있습니다. 부업이나 새로운 수익원을 구상하기 좋습니다.',
+        tip: '하고 싶은 일을 한 문장으로 적고, 오늘 할 수 있는 첫 행동 하나를 정해 실행하세요.' },
+      rev: { kw: ['재능 낭비', '말뿐인 계획', '속임수'],
+        t: '능력은 있지만 한곳에 집중하지 못하고 흩어지는 상태입니다. 겉모습과 실제가 다를 수 있으니 주의가 필요합니다.',
+        love: '달콤한 말에 현혹되거나, 내가 마음을 다 보여주지 못하고 있을 수 있습니다. 행동으로 진심을 확인하세요.',
+        work: '벌려놓은 일이 많아 마무리가 약합니다. 우선순위 하나만 남기고 나머지는 정리하세요.',
+        money: '지나치게 좋은 조건의 제안은 의심하세요. 계약서와 출처를 꼼꼼히 확인해야 합니다.',
+        tip: '하던 일 하나를 끝까지 마무리한 뒤 다음 일을 시작하세요.' } },
+    { n: 2, name: '여사제', en: 'The High Priestess',
+      up: { kw: ['직관', '고요', '숨겨진 지식'],
+        t: '드러나지 않은 진실과 내면의 목소리를 가리키는 카드입니다. 지금은 행동보다 관찰과 기다림이 답을 줍니다.',
+        love: '상대의 속마음은 말이 아닌 태도에 있습니다. 서두르지 말고 천천히 알아가세요.',
+        work: '정보를 모으고 분석하는 단계입니다. 결론을 내기보다 더 알아보는 쪽이 유리합니다.',
+        money: '큰 재정 결정은 잠시 미루고 흐름을 지켜보세요. 아직 공개되지 않은 정보가 있을 수 있습니다.',
+        tip: '오늘은 조용한 시간을 30분만 만들어 보세요. 떠오르는 첫 느낌을 메모해 두면 도움이 됩니다.' },
+      rev: { kw: ['직관 차단', '혼란', '감춰진 의도'],
+        t: '마음의 소리가 잡음에 가려진 상태입니다. 불확실한 소문이나 추측에 휘둘리지 않도록 주의하세요.',
+        love: '속마음을 서로 숨기느라 오해가 쌓이고 있습니다. 추측 대신 직접 물어보세요.',
+        work: '업무에서 공유되지 않은 정보나 숨은 사정이 있을 수 있습니다. 확인 없이 결론 내리지 마세요.',
+        money: '출처가 불분명한 정보로 하는 판단은 위험합니다. 공식 자료를 확인하세요.',
+        tip: '불안한 생각이 들면 사실과 추측을 종이에 나눠 적어 보세요.' } },
+    { n: 3, name: '여황제', en: 'The Empress',
+      up: { kw: ['풍요', '돌봄', '결실'],
+        t: '정성껏 가꾼 것이 풍성하게 열매 맺는 카드입니다. 애정과 창조적 에너지가 넘치는 시기입니다.',
+        love: '따뜻하고 안정적인 관계로 깊어집니다. 애정 표현을 아끼지 않으면 관계가 더욱 풍성해집니다.',
+        work: '그동안의 노력이 인정받고 성과로 이어집니다. 창의적인 작업이나 사람을 돌보는 일에 특히 좋습니다.',
+        money: '수입이 안정되고 늘어나는 흐름입니다. 즐거움을 위한 소비도 적당히 허용해도 좋습니다.',
+        tip: '나 자신에게 작은 보상을 주세요. 충분히 쉬고 먹는 것도 오늘의 일입니다.' },
+      rev: { kw: ['의존', '정체', '과잉 보호'],
+        t: '베푸는 에너지가 막히거나 과해진 상태입니다. 나를 돌보지 않고 남만 챙기고 있지는 않은지 돌아보세요.',
+        love: '집착이나 지나친 간섭이 관계를 답답하게 만듭니다. 상대에게 숨 쉴 공간을 주세요.',
+        work: '아이디어가 막히고 의욕이 떨어질 수 있습니다. 환경을 바꾸거나 잠시 쉬어가세요.',
+        money: '충동적인 과소비를 조심하세요. 고정 지출을 한 번 점검해 보세요.',
+        tip: '남을 위한 일과 나를 위한 일의 비율을 반반으로 맞춰 보세요.' } },
+    { n: 4, name: '황제', en: 'The Emperor',
+      up: { kw: ['안정', '책임', '체계'],
+        t: '질서와 원칙으로 상황을 단단히 쥐는 카드입니다. 계획과 규율이 성공을 뒷받침합니다.',
+        love: '믿음직하고 안정적인 관계를 원하게 됩니다. 책임감 있는 태도가 상대에게 신뢰를 줍니다.',
+        work: '리더 역할이나 책임 있는 자리에 어울립니다. 체계를 세우고 일정을 관리하면 성과가 납니다.',
+        money: '예산을 세우고 지키면 자산이 탄탄해집니다. 장기 계획과 저축에 유리합니다.',
+        tip: '오늘 할 일을 우선순위로 적고 위에서부터 차례로 처리하세요.' },
+      rev: { kw: ['독선', '경직', '통제'],
+        t: '원칙이 고집으로 굳어진 상태입니다. 내 방식만 옳다는 태도가 주변과 갈등을 만들 수 있습니다.',
+        love: '상대를 통제하려 하거나 주도권 다툼이 생기기 쉽습니다. 한 발 양보하는 여유가 필요합니다.',
+        work: '권위적인 상사나 융통성 없는 규정에 부딪힐 수 있습니다. 감정적 대립보다 근거로 설득하세요.',
+        money: '고집스러운 투자나 무리한 확장은 손실로 이어질 수 있습니다. 한계를 정해두세요.',
+        tip: '이번 주에는 다른 사람의 의견을 끝까지 듣고 하나라도 받아들여 보세요.' } },
+    { n: 5, name: '교황', en: 'The Hierophant',
+      up: { kw: ['전통', '조언', '배움'],
+        t: '검증된 방식과 스승의 가르침을 따르는 카드입니다. 기본에 충실한 선택이 안전한 길입니다.',
+        love: '결혼, 약속, 가족 같은 전통적인 관계의 단계로 나아가기 좋습니다. 서로의 가치관을 확인해 보세요.',
+        work: '자격증, 교육, 멘토의 조언이 도움이 됩니다. 조직의 규칙 안에서 신뢰를 쌓는 시기입니다.',
+        money: '검증된 상품과 안정적인 방식이 맞습니다. 전문가 상담을 받는 것도 좋습니다.',
+        tip: '존경하는 사람이나 전문가에게 조언을 구해 보세요.' },
+      rev: { kw: ['관습 탈피', '틀에 갇힘', '형식주의'],
+        t: '낡은 규칙이 발목을 잡거나, 반대로 규칙을 무시해 혼란을 겪는 상태입니다. 나만의 기준을 찾을 때입니다.',
+        love: '주변의 시선이나 관습 때문에 마음을 억누르고 있을 수 있습니다. 두 사람에게 맞는 방식을 찾으세요.',
+        work: '형식적인 절차에 지쳐 있습니다. 규칙 안에서 개선할 부분을 제안해 보세요.',
+        money: '남들이 한다고 따라 하는 투자는 위험합니다. 내 상황에 맞는 기준을 세우세요.',
+        tip: '“원래 그렇게 해왔으니까”라는 이유로 하는 일이 있는지 하나만 찾아보세요.' } },
+    { n: 6, name: '연인', en: 'The Lovers',
+      up: { kw: ['사랑', '조화', '중요한 선택'],
+        t: '마음이 이끄는 진실한 선택의 순간입니다. 사랑뿐 아니라 가치관에 따른 중요한 결정을 뜻하기도 합니다.',
+        love: '서로 마음이 통하는 깊은 관계입니다. 솔직하게 마음을 나누면 한 단계 더 가까워집니다.',
+        work: '좋은 파트너나 팀을 만나 시너지가 납니다. 두 갈래 길 앞이라면 가치관에 맞는 쪽을 고르세요.',
+        money: '공동 사업이나 공동 투자의 기회가 있습니다. 역할과 몫을 명확히 해두세요.',
+        tip: '선택이 고민이라면 “어느 쪽이 더 나다운가”를 기준으로 생각해 보세요.' },
+      rev: { kw: ['엇갈림', '망설임', '불균형'],
+        t: '관계나 선택에서 마음이 엇갈립니다. 결정을 미루는 동안 기회가 흐려질 수 있습니다.',
+        love: '가치관 차이나 소통 부족으로 거리가 생깁니다. 서운함을 쌓아두지 말고 말로 풀어보세요.',
+        work: '동료와 의견 충돌이 있거나 선택지 사이에서 흔들립니다. 장단점을 적어 비교해 보세요.',
+        money: '공동 자금이나 동업에서 갈등이 생길 수 있습니다. 문서로 정리해 두세요.',
+        tip: '이번 주에 한 번은 상대에게 솔직한 속마음을 먼저 말해 보세요.' } },
+    { n: 7, name: '전차', en: 'The Chariot',
+      up: { kw: ['승리', '추진력', '자기 통제'],
+        t: '상반된 힘을 하나로 모아 목표를 향해 질주하는 카드입니다. 의지와 집중이 승리를 만듭니다.',
+        love: '적극적으로 다가가면 성과가 있습니다. 다만 상대의 속도도 함께 살펴주세요.',
+        work: '시험, 경쟁, 프로젝트에서 좋은 결과가 기대됩니다. 목표를 분명히 하고 밀어붙이세요.',
+        money: '적극적인 영업과 수입 확대에 유리합니다. 목표 금액과 기한을 정하면 더 좋습니다.',
+        tip: '목표를 하나만 정하고 오늘부터 매일 조금씩 그쪽으로 움직이세요.' },
+      rev: { kw: ['방향 상실', '폭주', '통제 불능'],
+        t: '힘은 넘치는데 방향이 흔들리거나 감정에 휘둘리는 상태입니다. 속도를 줄이고 고삐를 다시 잡으세요.',
+        love: '다투다 감정이 앞서 말이 거칠어질 수 있습니다. 이기려 하지 말고 한 템포 쉬세요.',
+        work: '일정이 꼬이거나 경쟁에서 밀릴 수 있습니다. 무리한 확장보다 정비가 먼저입니다.',
+        money: '무리한 투자나 과속 결정은 손실이 납니다. 한도를 정하고 지키세요.',
+        tip: '화가 나거나 조급할 때는 결정을 내리지 말고 10분만 걷고 오세요.' } },
+    { n: 8, name: '힘', en: 'Strength',
+      up: { kw: ['용기', '인내', '부드러운 강인함'],
+        t: '억누르는 힘이 아니라 다정함과 인내로 사자를 다루는 카드입니다. 침착함이 가장 큰 무기입니다.',
+        love: '다툼은 부드러운 태도로 풀립니다. 상대의 불안을 따뜻하게 받아주면 신뢰가 깊어집니다.',
+        work: '어려운 상황이나 까다로운 사람을 인내로 이겨냅니다. 꾸준함이 평가받습니다.',
+        money: '충동을 다스리면 자산이 안정됩니다. 장기적인 인내가 수익으로 돌아옵니다.',
+        tip: '화가 날 때 숨을 길게 세 번 쉬고 나서 말하는 습관을 들여 보세요.' },
+      rev: { kw: ['자신감 부족', '감정 폭발', '무기력'],
+        t: '자신을 의심하거나 감정을 눌러두다 한꺼번에 터뜨리기 쉬운 상태입니다. 먼저 스스로를 다독여야 합니다.',
+        love: '불안이나 질투가 관계를 흔듭니다. 비교하지 말고 나의 가치를 먼저 인정하세요.',
+        work: '자신감이 떨어져 기회를 피하게 됩니다. 작은 성공 경험부터 쌓아 보세요.',
+        money: '불안 때문에 충동 구매나 성급한 매도를 할 수 있습니다. 계획대로만 움직이세요.',
+        tip: '오늘 잘한 일을 세 가지만 적어 보세요. 아무리 작아도 좋습니다.' } },
+    { n: 9, name: '은둔자', en: 'The Hermit',
+      up: { kw: ['성찰', '탐구', '고독'],
+        t: '등불을 들고 홀로 길을 비추는 카드입니다. 잠시 물러나 자신을 돌아보면 앞길이 보입니다.',
+        love: '지금은 관계보다 나 자신을 이해할 시간입니다. 혼자 있는 시간이 오히려 좋은 인연의 준비가 됩니다.',
+        work: '연구, 공부, 전문성 쌓기에 좋습니다. 사람 많은 자리보다 집중할 환경이 도움이 됩니다.',
+        money: '지출을 돌아보고 장기 계획을 세울 때입니다. 서두르지 말고 충분히 조사하세요.',
+        tip: '이번 주에 하루는 스마트폰을 멀리하고 생각을 정리하는 시간을 가져 보세요.' },
+      rev: { kw: ['고립', '외로움', '회피'],
+        t: '성찰이 지나쳐 세상과 단절되거나, 반대로 혼자 있는 걸 두려워하는 상태입니다.',
+        love: '마음을 닫고 거리를 두고 있습니다. 믿을 만한 사람에게 조금씩 열어 보세요.',
+        work: '혼자 끌어안고 있다가 지칠 수 있습니다. 동료에게 도움을 요청하세요.',
+        money: '혼자만의 판단으로 놓치는 부분이 있습니다. 주변이나 전문가의 의견을 들어보세요.',
+        tip: '오랫동안 연락 못 한 사람에게 안부 메시지를 하나 보내 보세요.' } },
+    { n: 10, name: '운명의 수레바퀴', en: 'Wheel of Fortune',
+      up: { kw: ['전환점', '행운', '순환'],
+        t: '운의 흐름이 좋은 쪽으로 돌아서는 카드입니다. 뜻밖의 기회나 전환점이 찾아옵니다.',
+        love: '우연한 만남이나 관계의 전환점이 올 수 있습니다. 흐름을 믿고 열린 마음으로 대하세요.',
+        work: '기대하지 않던 기회나 승진, 이동의 소식이 있습니다. 변화를 받아들이세요.',
+        money: '운이 따르는 시기이지만 행운에만 기대지는 마세요. 들어온 기회를 현명하게 쓰세요.',
+        tip: '찾아온 제안이나 기회는 일단 끝까지 들어보세요.' },
+      rev: { kw: ['불운', '저항', '정체'],
+        t: '흐름이 잠시 거꾸로 도는 시기입니다. 변화에 저항할수록 힘들어지니 지나가기를 기다리는 지혜가 필요합니다.',
+        love: '타이밍이 엇나가 아쉬운 일이 생길 수 있습니다. 조급해하지 않으면 다시 흐름이 옵니다.',
+        work: '계획이 지연되거나 예상치 못한 변수가 생깁니다. 여유 일정을 확보하세요.',
+        money: '예상 밖의 지출이나 손실에 대비하세요. 비상금이 도움이 됩니다.',
+        tip: '통제할 수 없는 일은 내려놓고, 내가 할 수 있는 일에만 집중하세요.' } },
+    { n: 11, name: '정의', en: 'Justice',
+      up: { kw: ['공정', '진실', '인과'],
+        t: '뿌린 대로 거두는 균형의 카드입니다. 정직하고 객관적인 판단이 좋은 결과를 부릅니다.',
+        love: '서로 주고받는 균형이 중요합니다. 솔직하고 공정한 대화가 관계를 바로 세웁니다.',
+        work: '계약, 평가, 법적인 문제에서 정당한 결과를 얻습니다. 서류와 약속을 정확히 하세요.',
+        money: '공정한 거래와 정산이 이뤄집니다. 빚이나 계약 관련 일은 정리하기 좋습니다.',
+        tip: '결정을 내리기 전에 감정을 빼고 사실만 나열해 보세요.' },
+      rev: { kw: ['불공정', '편견', '책임 회피'],
+        t: '한쪽으로 치우친 판단이나 책임을 피하려는 태도를 경계해야 합니다. 불공정한 상황을 겪을 수도 있습니다.',
+        love: '서로 주는 것과 받는 것이 맞지 않아 불만이 쌓입니다. 솔직하게 균형을 다시 맞춰보세요.',
+        work: '평가나 계약이 불리하게 흘러갈 수 있습니다. 근거 자료를 잘 챙겨두세요.',
+        money: '계약서의 세부 조항과 숨은 비용을 꼭 확인하세요. 분쟁은 서면으로 남기세요.',
+        tip: '최근 내가 책임을 미룬 일이 있는지 돌아보고 먼저 인정해 보세요.' } },
+    { n: 12, name: '매달린 사람', en: 'The Hanged Man',
+      up: { kw: ['관점 전환', '기다림', '내려놓음'],
+        t: '멈춤이 오히려 통찰을 주는 카드입니다. 세상을 거꾸로 보면 몰랐던 해법이 보입니다.',
+        love: '밀어붙이기보다 기다리며 상대를 이해해 보세요. 한 발 물러나면 마음이 보입니다.',
+        work: '일이 잠시 멈춘 듯 보여도 헛되지 않습니다. 다른 관점에서 접근하면 돌파구가 생깁니다.',
+        money: '지금은 투자보다 관망이 낫습니다. 서두르지 않는 것이 손해를 막습니다.',
+        tip: '고민 중인 문제를 반대 입장에서 한 번 생각해 보세요.' },
+      rev: { kw: ['헛된 희생', '미루기', '정체'],
+        t: '의미 없는 기다림이나 불필요한 희생이 이어지고 있습니다. 이제는 결단이 필요한 시점입니다.',
+        love: '한쪽만 계속 참고 기다리는 관계는 지칩니다. 원하는 바를 분명히 말하세요.',
+        work: '결정을 미루는 사이 기회가 지나가고 있습니다. 기한을 정해 결론을 내세요.',
+        money: '손실이 난 곳에 미련을 두고 있지는 않은지 돌아보세요. 정리할 건 정리하세요.',
+        tip: '“언제까지 기다릴 것인가”의 기한을 오늘 정해 보세요.' } },
+    { n: 13, name: '죽음', en: 'Death',
+      up: { kw: ['끝과 시작', '변화', '정리'],
+        t: '문자 그대로의 죽음이 아니라 큰 변환의 카드입니다. 하나가 끝나야 다음이 시작됩니다.',
+        love: '관계의 한 단계가 끝나고 새로운 국면이 열립니다. 이별이든 재정립이든 성장이 따라옵니다.',
+        work: '직무나 환경의 큰 변화가 있습니다. 낡은 방식을 정리하면 새 기회가 옵니다.',
+        money: '지출 구조와 자산을 크게 정리하기 좋은 때입니다. 불필요한 것을 과감히 정리하세요.',
+        tip: '더는 나에게 도움이 안 되는 물건, 관계, 습관 하나를 정리해 보세요.' },
+      rev: { kw: ['변화 거부', '미련', '정체'],
+        t: '끝내야 할 것을 붙잡고 있어 전진하지 못하는 상태입니다. 변화를 늦출수록 힘들어집니다.',
+        love: '끝난 관계에 대한 미련이나 변화를 두려워하는 마음이 있습니다. 놓아야 새로 시작됩니다.',
+        work: '안 맞는 일을 관성으로 이어가고 있습니다. 변화의 필요성을 인정하세요.',
+        money: '손실을 인정하지 못하고 붙들고 있는 자산이 있을 수 있습니다. 냉정히 점검하세요.',
+        tip: '미련이 남은 것 하나를 정해, 놓아줄 구체적인 날짜를 적어 보세요.' } },
+    { n: 14, name: '절제', en: 'Temperance',
+      up: { kw: ['균형', '조화', '인내'],
+        t: '서로 다른 것을 알맞게 섞어 조화를 이루는 카드입니다. 극단을 피하고 중용을 지키세요.',
+        love: '서로의 차이를 인정하며 맞춰가는 안정적인 관계입니다. 천천히 깊어지는 사랑입니다.',
+        work: '협업과 조율에 강점이 있습니다. 꾸준한 페이스가 성과를 만듭니다.',
+        money: '수입과 지출의 균형이 잡힙니다. 분산 투자와 꾸준한 저축이 맞습니다.',
+        tip: '일, 휴식, 관계의 비율을 점검하고 가장 모자란 쪽에 시간을 더 배분하세요.' },
+      rev: { kw: ['과잉', '불균형', '조급함'],
+        t: '한쪽으로 치우쳐 균형이 깨진 상태입니다. 무엇이든 과하면 탈이 나기 쉽습니다.',
+        love: '감정 표현이나 기대치가 지나쳐 관계가 피로해집니다. 속도를 낮춰 보세요.',
+        work: '과로나 업무 몰림으로 리듬이 깨졌습니다. 일정과 업무량을 조정하세요.',
+        money: '소비와 저축의 균형이 무너지기 쉽습니다. 한 달 지출을 항목별로 확인하세요.',
+        tip: '이번 주에는 수면과 식사 시간을 일정하게 지켜 보세요.' } },
+    { n: 15, name: '악마', en: 'The Devil',
+      up: { kw: ['유혹', '집착', '속박'],
+        t: '나를 묶고 있는 습관, 욕망, 관계를 직시하라는 카드입니다. 사슬은 사실 스스로 벗을 수 있을 만큼 느슨합니다.',
+        love: '강한 끌림이지만 집착이나 의존으로 흐를 수 있습니다. 건강한 관계인지 냉정히 살펴보세요.',
+        work: '일에 지나치게 묶여 있거나 불합리한 조건을 참고 있지는 않은지 돌아보세요.',
+        money: '충동 소비, 빚, 도박성 투자의 유혹을 경계하세요. 자동이체나 한도 설정이 도움이 됩니다.',
+        tip: '나를 가장 소모시키는 습관 하나를 정해, 일주일만 끊어 보세요.' },
+      rev: { kw: ['해방', '벗어남', '자각'],
+        t: '얽매이던 것에서 벗어날 힘이 생기고 있습니다. 문제를 인식한 것만으로도 큰 진전입니다.',
+        love: '해로운 패턴이나 관계에서 벗어나려는 시도가 시작됩니다. 지금의 용기를 지키세요.',
+        work: '불합리한 환경에서 벗어나 자유를 찾을 수 있습니다. 새로운 길을 알아보세요.',
+        money: '빚이나 지출 습관에서 벗어나는 흐름입니다. 계획을 끝까지 지키세요.',
+        tip: '벗어나고 싶은 것을 소리 내어 말하고, 도움을 청할 사람에게 알려 보세요.' } },
+    { n: 16, name: '탑', en: 'The Tower',
+      up: { kw: ['급변', '붕괴', '깨달음'],
+        t: '잘못된 기반이 갑자기 무너지는 카드입니다. 충격적이지만 거짓을 걷어내고 진실 위에 새로 세울 기회입니다.',
+        love: '관계에 갑작스러운 사건이나 진실이 드러날 수 있습니다. 아프더라도 건강한 결말을 위한 과정입니다.',
+        work: '예상치 못한 구조조정이나 계획 변경이 있을 수 있습니다. 대비책을 마련해 두세요.',
+        money: '갑작스러운 지출이나 손실에 대비해 비상금을 점검하세요. 무리한 투자는 피하세요.',
+        tip: '최악의 상황을 가정해 대비책을 한 가지만 미리 만들어 두세요.' },
+      rev: { kw: ['위기 모면', '두려움', '지연된 변화'],
+        t: '큰 변화를 피하거나 늦추고 있는 상태입니다. 작은 균열을 외면할수록 나중의 충격이 커집니다.',
+        love: '문제를 덮어두고 지내고 있습니다. 불편한 이야기를 미루지 말고 지금 꺼내세요.',
+        work: '위험 신호를 알면서 넘기고 있지는 않나요? 문제는 작을 때 해결하세요.',
+        money: '불안 요소를 방치하고 있습니다. 지출과 부채를 직접 확인하세요.',
+        tip: '피하고 있던 문제를 하나만 골라, 오늘 가장 작은 단계부터 해결하세요.' } },
+    { n: 17, name: '별', en: 'The Star',
+      up: { kw: ['희망', '치유', '영감'],
+        t: '폭풍이 지나간 뒤 밤하늘에 별이 뜨는 카드입니다. 회복과 희망, 그리고 순수한 믿음의 시기입니다.',
+        love: '상처가 아물고 편안한 인연이 찾아옵니다. 있는 그대로의 나를 보여줘도 괜찮습니다.',
+        work: '막막했던 일에 희망이 보입니다. 꿈과 재능을 향해 꾸준히 나아가세요.',
+        money: '서서히 회복되는 흐름입니다. 큰 한 방보다 꾸준한 축적이 안전합니다.',
+        tip: '이루고 싶은 꿈 한 가지를 적고 작은 단계로 나눠 보세요.' },
+      rev: { kw: ['낙담', '불신', '희망 상실'],
+        t: '희망이 잠시 흐려져 스스로를 믿기 어려운 시기입니다. 하지만 별이 사라진 것은 아닙니다.',
+        love: '상처 때문에 사랑을 믿기 어렵습니다. 시간을 갖고 나를 먼저 회복시키세요.',
+        work: '의욕과 비전이 흐려졌습니다. 처음 이 일을 시작한 이유를 떠올려 보세요.',
+        money: '비관적인 마음에 성급한 판단을 하지 마세요. 작은 목표부터 다시 세우세요.',
+        tip: '오늘 나를 기분 좋게 하는 작은 일 하나를 꼭 해 보세요.' } },
+    { n: 18, name: '달', en: 'The Moon',
+      up: { kw: ['불안', '환상', '불확실'],
+        t: '안개 낀 밤길처럼 상황이 불분명하고 마음이 흔들리는 카드입니다. 보이는 것이 전부가 아닙니다.',
+        love: '상대의 마음이 확실하지 않아 불안합니다. 추측으로 단정 짓지 말고 시간을 두고 확인하세요.',
+        work: '정보가 부족하거나 소문이 많은 상황입니다. 확인되지 않은 일에 휩쓸리지 마세요.',
+        money: '불확실한 상황에서는 큰 결정을 미루세요. 숨은 위험이 있을 수 있습니다.',
+        tip: '불안한 생각은 밤보다 아침에 다시 살펴보세요. 중요한 결정은 낮에 내리세요.' },
+      rev: { kw: ['안개가 걷힘', '진실 드러남', '불안 해소'],
+        t: '혼란이 서서히 걷히고 감춰졌던 사실이 분명해집니다. 불안의 원인을 이해하게 되는 시기입니다.',
+        love: '오해가 풀리고 상대의 진심이 보입니다. 서로의 불안을 솔직히 나눠 보세요.',
+        work: '불분명했던 상황이 정리되고 방향이 잡힙니다. 확인된 사실 위에서 움직이세요.',
+        money: '숨은 비용이나 조건이 드러납니다. 이제 명확한 정보로 판단할 수 있습니다.',
+        tip: '그동안 막연히 걱정하던 일을 구체적인 사실로 적어 정리해 보세요.' } },
+    { n: 19, name: '태양', en: 'The Sun',
+      up: { kw: ['기쁨', '성공', '활력'],
+        t: '타로에서 가장 밝고 긍정적인 카드 중 하나입니다. 성공, 활력, 순수한 기쁨이 가득합니다.',
+        love: '사랑이 밝고 행복하게 꽃핍니다. 솔직하고 즐거운 마음으로 다가가면 좋은 결과가 있습니다.',
+        work: '노력이 눈에 띄는 성과로 이어집니다. 당당하게 드러내고 인정을 받으세요.',
+        money: '수입과 성과가 좋은 시기입니다. 기쁜 마음으로 나누면 복이 더 커집니다.',
+        tip: '좋은 소식은 혼자 두지 말고 가까운 사람과 나누세요.' },
+      rev: { kw: ['일시적 우울', '과신', '지연된 성공'],
+        t: '밝은 기운이 구름에 잠시 가려진 상태입니다. 성공이 늦어지거나 지나친 낙관이 문제가 될 수 있습니다.',
+        love: '기대만큼 표현되지 않아 서운할 수 있습니다. 작은 즐거움부터 함께 만들어 보세요.',
+        work: '성과가 조금 늦게 나타나거나 과신으로 디테일을 놓칠 수 있습니다. 마무리를 점검하세요.',
+        money: '낙관적인 전망만 믿지 말고 현실적인 수치를 확인하세요.',
+        tip: '햇볕을 쬐며 20분 산책해 보세요. 기분과 에너지가 달라집니다.' } },
+    { n: 20, name: '심판', en: 'Judgement',
+      up: { kw: ['부활', '각성', '새로운 소명'],
+        t: '과거를 돌아보고 새로 태어나는 부름의 카드입니다. 지난 경험이 의미로 정리되고 새 단계가 열립니다.',
+        love: '과거의 인연이 다시 찾아오거나, 관계를 새롭게 정의하는 시기입니다. 지난 일을 용서하면 가벼워집니다.',
+        work: '경력의 전환이나 재도전의 기회가 있습니다. 마음속 소명에 귀 기울여 보세요.',
+        money: '지난 지출과 투자를 평가하고 새 기준을 세우기 좋은 때입니다.',
+        tip: '지난 1년을 돌아보며 배운 점 세 가지를 적어 보세요.' },
+      rev: { kw: ['자기 의심', '후회', '결단 회피'],
+        t: '과거에 얽매여 결단을 내리지 못하고 있습니다. 스스로에게 지나치게 가혹하지 않은지 돌아보세요.',
+        love: '지난 연애에 대한 후회가 현재를 막고 있습니다. 과거를 정리해야 새로운 사랑이 들어옵니다.',
+        work: '이직이나 도전에서 “내가 될까”라는 의심에 멈춰 있습니다. 작은 시도부터 해 보세요.',
+        money: '과거 손실에 대한 후회로 기회를 피하고 있습니다. 이번에는 이번 상황으로만 판단하세요.',
+        tip: '스스로에게 “그때는 최선이었다”라고 한 번 말해 주세요.' } },
+    { n: 21, name: '세계', en: 'The World',
+      up: { kw: ['완성', '성취', '통합'],
+        t: '한 사이클이 훌륭하게 마무리되는 카드입니다. 노력이 완성되고 다음 여정의 문이 열립니다.',
+        love: '관계가 안정되고 완성된 느낌을 줍니다. 결혼이나 장기적인 약속으로 이어지기 좋습니다.',
+        work: '프로젝트 완수, 합격, 인정 등 목표가 이뤄집니다. 해외나 큰 무대로 확장할 기회도 있습니다.',
+        money: '장기 계획이 결실을 맺습니다. 성과를 정리하고 다음 목표를 세워보세요.',
+        tip: '끝낸 일을 충분히 축하한 뒤, 다음 목표를 하나만 정해 보세요.' },
+      rev: { kw: ['미완성', '마무리 부족', '지연'],
+        t: '거의 다 왔지만 마지막 한 조각이 남아 있습니다. 끝맺음을 못 해 아쉬운 상태입니다.',
+        love: '관계가 한 단계 마무리되지 못하고 맴돌고 있습니다. 서로의 의도를 확실히 해 보세요.',
+        work: '막바지 작업이나 확인이 부족합니다. 마감 직전의 디테일을 점검하세요.',
+        money: '목표 금액에 거의 도달했지만 마무리가 부족합니다. 마지막 계획을 점검하세요.',
+        tip: '끝내지 못한 일 중 가장 작은 것 하나를 오늘 완전히 마무리하세요.' } }
   ];
+
+  // 전통 점성술 기호(황금새벽회 대응)를 카드 중앙 문양으로 사용
+  const SYMBOLS = ['♅︎', '☿︎', '☽︎', '♀︎', '♈︎', '♉︎', '♊︎', '♋︎', '♌︎', '♍︎', '♃︎', '♎︎', '♆︎', '♏︎', '♐︎', '♑︎', '♂︎', '♒︎', '♓︎', '☉︎', '♇︎', '♄︎'];
+  const ROMAN = ['0','I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX','XXI'];
 
   const POSITIONS = {
     1: ['오늘의 메시지'],
@@ -261,14 +533,12 @@
     flip.setAttribute('aria-label', title + ' 카드 뒤집기');
     const inner = el('div', 'flip-inner');
 
-    const back = el('div', 'face back', '✦');
+    const back = el('div', 'face back');
     const front = el('div', 'face front');
-    const wrap = el('div', item.reversed ? 'rev' : '');
-    wrap.style.textAlign = 'center';
-    const sym = el('div', 'sym', item.card.sym);
-    wrap.appendChild(sym);
-    front.appendChild(el('div', 'num', String(item.card.n)));
-    front.appendChild(wrap);
+    front.appendChild(el('div', 'num', ROMAN[item.card.n]));
+    const medal = el('div', 'medal' + (item.reversed ? ' rev' : ''));
+    medal.appendChild(el('div', 'sym', SYMBOLS[item.card.n]));
+    front.appendChild(medal);
     front.appendChild(el('div', 'name', item.card.name));
     front.appendChild(el('div', 'en', item.card.en));
     front.appendChild(el('div', 'dir', item.reversed ? '역방향' : '정방향'));
@@ -291,23 +561,42 @@
     return slot;
   }
 
+  const TOPICS = { love: '연애', work: '직업·학업', money: '재물' };
+  let topic = 'all';
+
+  function labeled(label, text, cls) {
+    const p = el('p', cls || '');
+    p.appendChild(el('strong', '', label + ' '));
+    p.appendChild(document.createTextNode(text));
+    return p;
+  }
+
   function showReading() {
     readingEl.innerHTML = '';
     const titles = POSITIONS[drawn.length];
+    const faceOf = item => (item.reversed ? item.card.rev : item.card.up);
     drawn.forEach((item, i) => {
       const { card, reversed } = item;
+      const face = faceOf(item);
       const box = el('div');
       box.appendChild(el('h3', '', titles[i] + ' · ' + card.name + (reversed ? ' (역방향)' : '')));
-      box.appendChild(el('div', 'kw', (reversed ? card.rev : card.up).map(k => '#' + k).join(' ')));
-      box.appendChild(el('p', '', reversed ? card.revText : card.upText));
+      box.appendChild(el('div', 'kw', face.kw.map(k => '#' + k).join(' ')));
+      box.appendChild(el('p', '', face.t));
+      const keys = topic === 'all' ? ['love', 'work', 'money'] : [topic];
+      keys.forEach(k => box.appendChild(labeled(TOPICS[k], face[k])));
+      box.appendChild(labeled('오늘의 조언', face.tip, 'tip'));
       readingEl.appendChild(box);
     });
     if (drawn.length === 3) {
       const sum = el('div');
-      sum.appendChild(el('h3', '', '종합'));
+      sum.appendChild(el('h3', '', '종합 흐름'));
       sum.appendChild(el('p', '',
         '과거의 「' + drawn[0].card.name + '」에서 현재의 「' + drawn[1].card.name +
-        '」을 거쳐 「' + drawn[2].card.name + '」의 흐름으로 이어집니다. 지금의 선택이 미래의 모습을 만들어 갑니다.'));
+        '」을 거쳐 「' + drawn[2].card.name + '」의 흐름으로 이어집니다.'));
+      const future = faceOf(drawn[2]);
+      if (topic === 'all') sum.appendChild(labeled('앞으로의 방향', future.t));
+      else sum.appendChild(labeled(TOPICS[topic] + '의 앞날', future[topic]));
+      sum.appendChild(labeled('지금 할 일', faceOf(drawn[1]).tip, 'tip'));
       readingEl.appendChild(sum);
     }
     readingEl.hidden = false;
@@ -317,6 +606,7 @@
   document.getElementById('draw').addEventListener('click', () => {
     const count = parseInt(document.getElementById('spread').value, 10);
     const question = document.getElementById('question').value.trim();
+    topic = document.getElementById('topic').value;
     drawn = pickCards(count);
     opened = 0;
     tableEl.innerHTML = '';
